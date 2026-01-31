@@ -1,0 +1,14 @@
+[
+  {
+    "id": "qsr-clean-bright",
+    "name": "QSR Clean & Bright",
+    "description": "Crisp, bright, friendly commercial look with clean highlights.",
+    "promptFragment": "bright clean commercial lighting, crisp highlights, true-to-life color, subtle contrast"
+  },
+  {
+    "id": "qsr-warm-cozy",
+    "name": "QSR Warm & Cozy",
+    "description": "Warm inviting tones, dinner rush vibe, soft falloff.",
+    "promptFragment": "warm inviting lighting, soft shadows, cozy ambience, gentle contrast"
+  }
+]

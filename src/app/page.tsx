@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { BRAND_KITS, SHOT_RECIPES } from '@/lib/recipes';
+import { useEffect, useMemo, useState } from 'react';
+import { loadBrandKitsClient, loadShotRecipesClient, type BrandKit, type ShotRecipe } from '@/lib/catalog';
 
 function fileToBase64(file: File): Promise<{ base64: string; mime: string }>
 {
@@ -23,16 +23,28 @@ export default function Home() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultBase64, setResultBase64] = useState<string | null>(null);
 
-  const [brandKit, setBrandKit] = useState(BRAND_KITS[0]!.id);
-  const [recipe, setRecipe] = useState(SHOT_RECIPES[0]!.id);
+  const [brandKits, setBrandKits] = useState<BrandKit[]>([]);
+  const [shotRecipes, setShotRecipes] = useState<ShotRecipe[]>([]);
+
+  const [brandKit, setBrandKit] = useState<string>('');
+  const [recipe, setRecipe] = useState<string>('');
   const [strictness, setStrictness] = useState(70);
   const [userPrompt, setUserPrompt] = useState('');
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const brandKitObj = useMemo(() => BRAND_KITS.find((b) => b.id === brandKit)!, [brandKit]);
-  const recipeObj = useMemo(() => SHOT_RECIPES.find((r) => r.id === recipe)!, [recipe]);
+  useEffect(() => {
+    const bk = loadBrandKitsClient();
+    const sr = loadShotRecipesClient();
+    setBrandKits(bk);
+    setShotRecipes(sr);
+    setBrandKit((cur) => cur || bk[0]?.id || '');
+    setRecipe((cur) => cur || sr[0]?.id || '');
+  }, []);
+
+  const brandKitObj = useMemo(() => brandKits.find((b) => b.id === brandKit), [brandKits, brandKit]);
+  const recipeObj = useMemo(() => shotRecipes.find((r) => r.id === recipe), [shotRecipes, recipe]);
 
   async function generate() {
     if (!file) return;
@@ -49,8 +61,9 @@ export default function Home() {
           imageBase64: base64,
           mimeType: mime,
           userPrompt,
-          brandKitPrompt: brandKitObj.promptFragment,
-          recipePrompt: recipeObj.promptFragment,
+          brandKitPrompt: brandKitObj?.promptFragment,
+          recipePrompt: recipeObj?.promptFragment,
+          recipeId: recipeObj?.id,
           strictness,
         }),
       });
@@ -112,7 +125,7 @@ export default function Home() {
                   value={recipe}
                   onChange={(e) => setRecipe(e.target.value)}
                 >
-                  {SHOT_RECIPES.map((r) => (
+                  {shotRecipes.map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.name}
                     </option>
@@ -125,7 +138,7 @@ export default function Home() {
                   value={brandKit}
                   onChange={(e) => setBrandKit(e.target.value)}
                 >
-                  {BRAND_KITS.map((b) => (
+                  {brandKits.map((b) => (
                     <option key={b.id} value={b.id}>
                       {b.name}
                     </option>

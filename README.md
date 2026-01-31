@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nano Banana
 
-## Getting Started
+Internal ChromaPages tool to upgrade QSR/restaurant photos into high-performing marketing images using **Gemini**.
 
-First, run the development server:
+## Setup
+
+1) Install
+
+```bash
+npm install
+```
+
+2) Configure env
+
+Create `.env.local`:
+
+```bash
+GEMINI_API_KEY=...
+# Optional (defaults to gemini-3-pro)
+GEMINI_MODEL=gemini-3-pro
+```
+
+3) Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features (MVP+)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Brand kits + shot recipes**
+  - Defaults stored in repo JSON: `src/data/brand-kits.json`, `src/data/shot-recipes.json`
+  - Admin editor at **/admin/brand-kits** (stored in `localStorage` per-browser)
+  - Import/export JSON + reset to repo defaults
 
-## Learn More
+- **Auto-clean (safe, deterministic)** (default: ON)
+  - Server-side `sharp` preprocessing: auto-rotate, normalize, gentle denoise + sharpen, resize down to a sane max
 
-To learn more about Next.js, take a look at the following resources:
+- **Multi-variant generation**
+  - Generate N variants (1–4 in UI) with slight daypart/crowd prompt deltas
+  - Selectable variant thumbnails
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Compliance guardrails**
+  - Prompt construction enforces:
+    - **No identifiable faces** (silhouettes/blur only)
+    - **No text/signage changes** (no add/remove/modify readable text)
+  - Crowd/people recipes require an acknowledgement checkbox before generation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Provenance / audit trail**
+  - Captures hashes (original + processed), prompts, parameters, model, timestamp
+  - Displayed on result panel and exportable as JSON
 
-## Deploy on Vercel
+- **Auto-crop pack (.zip)**
+  - "Download Pack (.zip)" generates channel-specific crops server-side via `sharp` and streams a zip:
+    - Google Business Profile: 4:3 + 1:1
+    - Instagram: 1:1 + 4:5
+    - Stories/Reels: 9:16
+    - Meta ads: 1:1 + 4:5
+    - Delivery apps: 1:1
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes / Constraints
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- This app does **not** persist server-side edits yet (no DB). Admin edits are stored in browser `localStorage`.
+- Model selection is controlled via `GEMINI_MODEL` (default is **gemini-3-pro**).

@@ -294,6 +294,41 @@ export default function Home() {
 
                     <button
                       className="rounded-xl border border-zinc-700 px-4 py-3 text-sm"
+                      onClick={async () => {
+                        try {
+                          setError(null);
+                          const img = results[selectedIdx]?.imageBase64;
+                          if (!img) return;
+                          const res = await fetch('/api/crop-pack', {
+                            method: 'POST',
+                            headers: { 'content-type': 'application/json' },
+                            body: JSON.stringify({
+                              imageBase64: img,
+                              mimeType: 'image/png',
+                              prefix: `nano-banana-variant-${selectedIdx + 1}`,
+                            }),
+                          });
+                          if (!res.ok) {
+                            const j = await res.json().catch(() => null);
+                            throw new Error(j?.error || 'Failed to build zip');
+                          }
+                          const blob = await res.blob();
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `nano-banana-variant-${selectedIdx + 1}-crop-pack.zip`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        } catch (e: any) {
+                          setError(e?.message || 'Failed to build zip');
+                        }
+                      }}
+                    >
+                      Download Pack (.zip)
+                    </button>
+
+                    <button
+                      className="rounded-xl border border-zinc-700 px-4 py-3 text-sm"
                       onClick={() => {
                         const prov = results[selectedIdx]?.provenance;
                         const blob = new Blob([JSON.stringify(prov, null, 2)], { type: 'application/json' });

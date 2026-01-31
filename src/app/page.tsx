@@ -88,6 +88,11 @@ export default function Home() {
               Internal ChromaPages tool: upgrade QSR photos (food hero, dining energy, pickup energy). Gemini 3 Pro.
             </p>
           </div>
+          <div className="flex gap-2">
+            <a className="rounded-xl border border-zinc-800 px-4 py-2 text-sm" href="/admin/brand-kits">
+              Brand kits
+            </a>
+          </div>
         </div>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
